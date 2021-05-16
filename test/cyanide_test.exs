@@ -132,4 +132,13 @@ defmodule CyanideTest do
 
     assert Cyanide.decode!(Cyanide.encode!(o3)) == o3
   end
+
+  test "encoding and decoding of dates" do
+    today = Date.utc_today()
+    now = DateTime.utc_now() |> DateTime.truncate(:millisecond)
+    map = %{"today" => today, "now" => now}
+
+    actual = Cyanide.encode!(map) |> Cyanide.decode!()
+    assert actual == map
+  end
 end

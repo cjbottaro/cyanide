@@ -27,6 +27,7 @@ defmodule Cyanide do
           | nil
           | integer()
           | DateTime.t()
+          | Date.t()
   @type bson_map :: %{optional(String.t()) => bson_type()}
 
   @type encodable_map_key :: atom() | String.t()
@@ -195,6 +196,11 @@ defmodule Cyanide do
     |> parse_doc_bytes(rest)
   end
 
+  defp parse_value(0x14, map, key, <<days::unsigned-little-32, rest::binary>>) do
+    Map.put(map, key, Date.from_gregorian_days(days))
+    |> parse_doc_bytes(rest)
+  end
+
   defp parse_value(_type, _map, _key, _invalid_bson) do
     {:error, :invalid_bson}
   end
@@ -279,6 +285,12 @@ defmodule Cyanide do
   defp encode_value(key_string, %DateTime{} = value) do
     timestamp_ms = DateTime.to_unix(value, :millisecond)
     [<<0x9>>, key_string, <<0>> | <<timestamp_ms::signed-little-64>>]
+  end
+
+  # This has to come before the pattern match on maps.
+  defp encode_value(key_string, %Date{} = date) do
+    days = Date.to_gregorian_days(date)
+    [<<0x14>>, key_string, <<0>> | <<days::unsigned-little-32>>]
   end
 
   defp encode_value(key_string, value) when is_map(value) do
