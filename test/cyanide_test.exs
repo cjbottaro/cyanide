@@ -141,4 +141,18 @@ defmodule CyanideTest do
     actual = Cyanide.encode!(map) |> Cyanide.decode!()
     assert actual == map
   end
+
+  test "atoms should be encoded to strings" do
+    doc = %{"test" => :blah}
+    expected = %{"test" => "blah"}
+    actual = Cyanide.encode!(doc) |> Cyanide.decode!()
+
+    assert expected == actual
+
+    doc = %{"test" => ["blah", :blah]}
+    expected = %{"test" => ["blah", "blah"]}
+    actual = Cyanide.encode!(doc) |> Cyanide.decode!()
+
+    assert expected == actual
+  end
 end

@@ -201,6 +201,11 @@ defmodule Cyanide do
     |> parse_doc_bytes(rest)
   end
 
+  # defp parse_value(0x15, map, key, value) do
+  #   parse_value(0x2, map, key, value)
+  #   |> String.to_atom()
+  # end
+
   defp parse_value(_type, _map, _key, _invalid_bson) do
     {:error, :invalid_bson}
   end
@@ -322,6 +327,10 @@ defmodule Cyanide do
 
   defp encode_value(key_string, nil) do
     [<<0xA>>, key_string | <<0>>]
+  end
+
+  defp encode_value(key_string, value) when is_atom(value) do
+    encode_value(key_string, to_string(value))
   end
 
   defp encode_value(key_string, value)
